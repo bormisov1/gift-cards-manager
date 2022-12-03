@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  </head>
+
+  <body>
+    <script async src="https://unpkg.com/es-module-shims@1.3.6/dist/es-module-shims.js"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.145.0/build/three.module.js",
+          "STLLoader": "https://unpkg.com/three@0.145.0/examples/jsm/loaders/STLLoader",
+          "STLExporter": "https://unpkg.com/three@0.145.0/examples/jsm/exporters/STLExporter"
+        }
+      }
+    </script>
+    <script type="module">
+      import * as THREE from 'three';
+      import { STLLoader} from 'STLLoader';
+      import { STLExporter} from 'STLExporter';
+      async function uploadSTL({
+        upperJaw,
+        lowerJaw,
+        fieldName,
+        scanPairNum,
+        order,
+        imageTitle}) {
+        let width = 1200, height = 600, animationFrame 
+        if (!upperJaw || !lowerJaw || !fieldName) return
+        try {
+          const resultBlob = await new Promise(async resolve => {
+            let perspectiveCamera, orthographicCamera, controls;
+            const params = {orthographicCamera: false};
+            const frustumSize = 100;
+
+            const aspect = width / height;
+
+            // perspectiveCamera = new THREE.PerspectiveCamera(
+            //   50,
+            //   0.5 * aspect,
+            //   0.1,
+            //   1000);
+
+            // perspectiveCamera.layers.enable( 0 ); // enabled by default
+            // perspectiveCamera.layers.enable( 1 );
+            // perspectiveCamera.position.set(-5,0,-5);
+            // perspectiveCamera.lookAt(-5, 0 ,0)
+            orthographicCamera = new THREE.OrthographicCamera(
+              frustumSize * aspect / -30,
+              frustumSize * aspect / 30,
+              frustumSize / 30,
+              frustumSize / -30,
+              0.1, 1000);
+            orthographicCamera.layers.enable( 0 ); // enabled by default
+            orthographicCamera.layers.enable( 1 );
+            orthographicCamera.position.set(0,0.5,-5);
+            orthographicCamera.lookAt(0, 0 ,0)
+            
+            //////////////// World //////////////////////
+
+            let scene = new THREE.Scene();
+            let background = new THREE.Color(0xcccccc);
+            scene.background = background;
+            ////////////// Lights /////////////////////////
+
+            const skyColor = 0xffffff;  // light blue
+            const intensity = 1;
+            const light = new THREE.HemisphereLight(skyColor, intensity);
+            light.layers.enable( 0 );
+            light.layers.enable( 1 );
+            //perspectiveCamera.add(light);
+            orthographicCamera.add(light);
+            //scene.add(perspectiveCamera);
+            scene.add(orthographicCamera);
+            
+            scene.add(new THREE.AxesHelper(5));
+
+            ////////////// Render /////////////////////////
+
+            let renderer = new THREE.WebGLRenderer({preserveDrawingBuffer: true});
+            renderer.setSize(width, height);
+            document.body.appendChild(renderer.domElement);
+
+            function animate() {
+              animationFrame = requestAnimationFrame( animate );
+              renderer.render( scene, orthographicCamera );
+            }
+            //////////////// Object ////////////////////
+            const material = new THREE.MeshPhysicalMaterial({
+              color: 0xf8f8f8,
+              roughness: 0.2,
+            });
+
+            const loader = new STLLoader();
+            let upperGeometry = await loader.loadAsync(upperJaw).catch(e => console.log(e));
+            const mesh_upperjaw = new THREE.Mesh(upperGeometry, material);
+            //console.log(mesh_upperjaw.rotation, mesh_upperjaw.modelViewMatrix)
+            //if (!mesh_upperjaw.geometry.boundingBox) mesh_upperjaw.geometry.computeBoundingBox();
+            //console.log(mesh_upperjaw.geometry, mesh_upperjaw.geometry.boundingBox)
+            //const centerVector = mesh_upperjaw.geometry.boundingSphere.center
+            //const rotationAxis = ['x', 'y', 'z'].reduce((axis, result) => {
+            //  return centerVector[axis] > centerVector[result] ? axis : result
+            //}, 'x')
+            mesh_upperjaw.scale.set(0.1, 0.1, 0.1);
+            mesh_upperjaw.position.set(0,0,0);
+            mesh_upperjaw.rotation.x = -Math.PI/2;
+            mesh_upperjaw.layers.set(0);
+            scene.add(mesh_upperjaw);
+            const lowerGeometry = await loader.loadAsync(lowerJaw).catch(e => console.log(e));
+            const mesh = new THREE.Mesh(lowerGeometry, material);
+            mesh.scale.set(0.1, 0.1, 0.1);
+            mesh.position.set(0,0,0);
+            mesh.rotation.x = -Math.PI/2;
+            mesh.layers.set(1);
+            scene.add(mesh);
+            animate()
+            const imgData = renderer.domElement.toDataURL();
+            cancelAnimationFrame(animationFrame)
+            fetch(imgData)
+              .then(res => res.blob())
+              .then(blob => resolve(blob))
+          })
+
+          //let formData = new FormData()
+          //formData.append('file', new File([resultBlob], 'joined.stl'))
+          let data = {
+            imageTitle,
+            orderId: order.id,
+            dataContainerId: order.dataContainerId,
+            revNumber: order.revNumber || 0,
+            step: order.step,
+            fieldName
+          }
+          //formData.append('data', JSON.stringify(data))
+          window.parent.postMessage({message: 'jawScanFormationFinished'})
+          window.parent.postMessage({data, resultBlob, fieldName, scanPairNum, order, imageTitle})
+        } catch (e) {
+          console.log(e)
+          window.parent.postMessage({message: 'errorOnJawScanFormation', error: true})
+        }
+      }
+
+      if (window.addEventListener) {
+        window.addEventListener("message", (m) => {
+          if (m.data && m.data.fieldName) uploadSTL(m.data)
+        }, false);
+      } else {
+        window.attachEvent("onmessage", (m) => {
+          if (m.data && m.data.fieldName) uploadSTL(m.data)
+        });
+      }
+    </script>
+  </body>
+</html>

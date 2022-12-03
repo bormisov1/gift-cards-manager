@@ -1,0 +1,61 @@
+{
+  "name": "demo3",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "serve": "vue-cli-service serve",
+    "build": "vue-cli-service build"
+  },
+  "dependencies": {
+    "@chenfengyuan/vue-qrcode": "^1.0.2",
+    "@mdi/font": "^4.9.95",
+    "axios": "^0.19.2",
+    "console.image": "^1.0.2",
+    "core-js": "^2.6.11",
+    "html2canvas": "^1.1.4",
+    "js-file-download": "^0.4.12",
+    "libphonenumber-js": "^1.9.49",
+    "lodash": "^4.17.15",
+    "node-fetch": "^2.6.7",
+    "pdfmake": "^0.1.71",
+    "pika-iconv-lite": "^0.4.18",
+    "portfinder": "^1.0.26",
+    "qrcode-svg": "^1.1.0",
+    "save": "^2.4.0",
+    "sortablejs": "^1.13.0",
+    "three": "^0.145.0",
+    "vue": "^2.6.12",
+    "vue-i18n": "8.15.3",
+    "vue-inputmask": "^0.2.1",
+    "vue-localstorage": "^0.6.2",
+    "vue-phone-number-input": "^1.1.10",
+    "vue-qrcode-reader": "^2.3.1",
+    "vue-router": "^3.3.4",
+    "vue-splitpane": "^1.0.6",
+    "vue-tel-input": "^5.10.0",
+    "vue-the-mask": "^0.11.1",
+    "vuedraggable": "^2.23.2",
+    "vuetify": "^2.3.10",
+    "vuex": "^3.4.0"
+  },
+  "devDependencies": {
+    "@vue/cli-plugin-babel": "^3.12.1",
+    "@vue/cli-service": "^3.12.1",
+    "material-design-icons-iconfont": "^5.0.1",
+    "sass": "^1.26.9",
+    "sass-loader": "^7.1.0",
+    "selenium-webdriver": "^4.0.0-beta.1",
+    "vue-cli-plugin-vuetify": "^1.1.2",
+    "vue-template-compiler": "^2.6.12",
+    "vuetify-loader": "^1.5.0"
+  },
+  "postcss": {
+    "plugins": {
+      "autoprefixer": {}
+    }
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions"
+  ]
+}
