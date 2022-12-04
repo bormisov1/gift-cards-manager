@@ -1,5 +1,5 @@
 {
-  "name": "cosmetologist-gift-card",
+  "name": "gift-cards-manager",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -21,13 +21,6 @@
     "test:e2e": "jest --config ./test/jest-e2e.json"
   },
   "dependencies": {
-    "@nestjs/common": "^8.0.0",
-    "@nestjs/core": "^8.0.0",
-    "@nestjs/jwt": "^9.0.0",
-    "@nestjs/mongoose": "^9.1.1",
-    "@nestjs/passport": "^8.2.2",
-    "@nestjs/platform-express": "^8.0.0",
-    "@nestjs/swagger": "^6.0.4",
     "atob": "^2.1.2",
     "bcryptjs": "^2.4.3",
     "btoa": "^1.2.1",
@@ -44,10 +37,15 @@
   },
   "devDependencies": {
     "@nestjs/cli": "^8.0.0",
+    "@nestjs/jwt": "^9.0.0",
+    "@nestjs/mongoose": "^9.2.1",
+    "@nestjs/passport": "^9.0.0",
     "@nestjs/schematics": "^8.0.0",
+    "@nestjs/serve-static": "^3.0.0",
+    "@nestjs/swagger": "^6.1.3",
     "@nestjs/testing": "^8.0.0",
     "@types/express": "^4.17.13",
-    "@types/jest": "27.5.0",
+    "@types/jest": "^27.5.0",
     "@types/node": "^16.0.0",
     "@types/passport-local": "^1.0.34",
     "@types/supertest": "^2.0.11",
@@ -57,6 +55,7 @@
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^4.0.0",
     "jest": "28.0.3",
+    "nest-winston": "^1.8.0",
     "prettier": "^2.3.2",
     "source-map-support": "^0.5.20",
     "supertest": "^6.1.3",
@@ -64,7 +63,8 @@
     "ts-loader": "^9.2.3",
     "ts-node": "^10.0.0",
     "tsconfig-paths": "4.0.0",
-    "typescript": "^4.3.5"
+    "typescript": "^4.3.5",
+    "winston": "^3.8.2"
   },
   "jest": {
     "moduleFileExtensions": [

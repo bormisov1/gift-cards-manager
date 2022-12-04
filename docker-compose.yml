@@ -1,0 +1,40 @@
+version: '3.4'
+
+services:
+
+  backend:
+    container_name: gift-cards-manager.backend
+    build:
+      context: backend
+      dockerfile: ./Dockerfile
+    ports:
+      - '3000:3000'
+    volumes:
+      - ../backend:/backend
+    depends_on:
+      - mongo-db
+    environment:
+      - DATABASE_HOST=mongo-db
+      - DATABASE_NAME=gift-cards-manager
+      - WAIT_HOSTS=mongo-db:27017
+      - PORT=3000
+#      - NODE_ENV=staging
+
+  frontend:
+    container_name: gift-cards-manager.frontend
+    build:
+      context: frontend
+      dockerfile: ./Dockerfile
+    depends_on:
+      - backend
+    ports:
+      - '8080:8080'
+
+  mongo-db:
+    container_name: gift-cards-manager.mongo-db
+    image: mongo
+    ports:
+      - '27018:27017'
+    volumes:
+      - ../db:/db
+

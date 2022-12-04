@@ -1,7 +1,7 @@
 import { Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-//import { ServeStaticModule } from '@nestjs/serve-static';
-//import { join } from 'path';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 //import { AppController } from './app.controller';
 //import { AppService } from './app.service';
@@ -11,15 +11,21 @@ import { FileHandlerModule } from './modules/file-handler/file-handler.module';
 //import { APP_FILTER } from '@nestjs/core';
 //APP_INTERCEPTOR
 //import { HttpExceptionFilter } from './shared/filters';
-//import * as winston from 'winston';
-//import { WinstonModule } from 'nest-winston';
-//import 'dotenv/config';
-//import { NODE_ENV } from './shared/enums';
+import * as winston from 'winston';
+import { WinstonModule } from 'nest-winston';
+// import 'dotenv/config';
+
 //import { HttpConsoleLoggerInterceptor } from './shared/interceptors';
 
-//const winstonTransports = [];
+const NODE_ENV = {
+  'DEVELOPMENT': 'development',
+  'STAGING': 'staging',
+  'PRODUCTION': 'production',
+}
 
-/* if (process.env.ENV === NODE_ENV.PRODUCTION) {
+let winstonTransports = [];
+
+if (process.env.ENV === NODE_ENV.PRODUCTION) {
   winstonTransports = [
     new winston.transports.File({
       filename: `logs/${new Date()
@@ -30,23 +36,23 @@ import { FileHandlerModule } from './modules/file-handler/file-handler.module';
   ];
 } else {
   winstonTransports = [new winston.transports.Console()];
-} */
+}
 
 @Module({
   imports: [
-    /*     WinstonModule.forRoot({
+    WinstonModule.forRoot({
       transports: winstonTransports,
-    }), */
-    AuthModule,
-    GiftCardsModule,
-    FileHandlerModule,
-    MongooseModule.forRoot('mongodb://localhost/nest'),
-    /*     ServeStaticModule.forRoot({
+    }),
+    MongooseModule.forRoot(`mongodb://${process.env['DATABASE_HOST']}/${process.env['DATABASE_NAME']}`),
+    ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../..', 'tracker'),
       serveStaticOptions: {
         index: 'tracker.js'
       }
-    }), */
+    }),
+    AuthModule,
+    GiftCardsModule,
+    FileHandlerModule,
   ],
   //controllers: [AppController],
   providers: [
