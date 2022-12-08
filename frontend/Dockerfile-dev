@@ -1,12 +1,9 @@
-FROM node:18.12.1-alpine
+FROM node:14-alpine
 
 WORKDIR /app
 
 COPY . .
 
-RUN apk add --no-cache --virtual .build-deps make gcc g++ python && \
-    npm install && \
-    ENV=development npm run build && \
-    cp dist/index.html dist/404.html
+RUN npm install
 
 CMD ["npm", "run", "serve"]

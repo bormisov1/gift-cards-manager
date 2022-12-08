@@ -37,11 +37,6 @@ const routes = [
     component: GiftCard,
   },
   {
-    path: '/not-found',
-    name: 'notFoundPage',
-    component: NotFoundPage,
-  },
-  {
     path: '/',
     name: 'home',
     component: Main,
@@ -58,13 +53,18 @@ const routes = [
         component: GiftCardEditing,
         props: true
       },
-      {
-        path: '*',
-        name: 'notFoundPage',
-        component: NotFoundPage,
-      },
+      // {
+      //   path: '*',
+      //   name: 'notFoundPage',
+      //   component: NotFoundPage,
+      // },
     ]
-  }
+  },
+  // {
+  //   path: '/not-found',
+  //   name: 'notFoundPage',
+  //   component: NotFoundPage,
+  // },
 ]
 
 const router = new VueRouter({

@@ -1,5 +1,9 @@
 # demo3
 
+## Development Notes
+
+Only sure about `Dockerfile-dev`. See if `Dockerfile` works too. Make node versions match in them
+
 ## Project setup
 ```
 npm install

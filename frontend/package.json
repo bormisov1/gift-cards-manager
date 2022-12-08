@@ -9,7 +9,7 @@
   "dependencies": {
     "@chenfengyuan/vue-qrcode": "^1.0.2",
     "@mdi/font": "^4.9.95",
-    "axios": "^1.2.0",
+    "axios": "^0.19.2",
     "console.image": "^1.0.2",
     "core-js": "^2.6.11",
     "html2canvas": "^1.1.4",
@@ -39,18 +39,15 @@
     "vuex": "^3.4.0"
   },
   "devDependencies": {
-    "webpack": "^4.0.0",
     "@vue/cli-plugin-babel": "^3.12.1",
-    "@vue/cli-service": "^5.0.8",
+    "@vue/cli-service": "^3.12.1",
     "material-design-icons-iconfont": "^5.0.1",
-    "nest": "^0.1.6",
     "sass": "^1.26.9",
     "sass-loader": "^7.1.0",
     "selenium-webdriver": "^4.0.0-beta.1",
     "vue-cli-plugin-vuetify": "^1.1.2",
     "vue-template-compiler": "^2.6.12",
-    "vuetify-loader": "^1.5.0",
-    "cache-loader": "^2.0.1"
+    "vuetify-loader": "^1.5.0"
   },
   "postcss": {
     "plugins": {
