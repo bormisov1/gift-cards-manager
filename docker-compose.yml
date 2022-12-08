@@ -20,15 +20,17 @@ services:
       - PORT=3000
 #      - NODE_ENV=staging
 
-  frontend:
-    container_name: gift-cards-manager.frontend
+  frontend-dev:
+    container_name: gift-cards-manager.frontend-dev
     build:
       context: frontend
-      dockerfile: ./Dockerfile
+      dockerfile: ./Dockerfile-dev
     depends_on:
       - backend
     ports:
       - '8080:8080'
+    volumes:
+      - ./frontend/src:/app/src
 
   mongo-db:
     container_name: gift-cards-manager.mongo-db
