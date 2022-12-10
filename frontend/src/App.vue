@@ -4,11 +4,19 @@
 
 <style>
 #app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
+}
+
+* {
+  font-family: Inter;
+}
+
+.v-text-field .v-label--active {
+  font-size: 14px !important;
+  transform: translateY(-18px) !important;
 }
 
 nav {
@@ -22,5 +30,9 @@ nav a {
 
 nav a.router-link-exact-active {
   color: #42b983;
+}
+.submit-btn {
+  color: #46c513 !important;
+  border-radius: 30px !important;
 }
 </style>
