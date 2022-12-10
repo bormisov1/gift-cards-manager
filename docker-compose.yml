@@ -10,7 +10,7 @@ services:
     ports:
       - '3000:3000'
     volumes:
-      - ../backend:/backend
+      - ./backend/src:/backend/src
     depends_on:
       - mongo-db
     environment:
@@ -31,6 +31,7 @@ services:
       - '8080:8080'
     volumes:
       - ./frontend/src:/app/src
+      - ./frontend/public:/app/public
 
   mongo-db:
     container_name: gift-cards-manager.mongo-db
