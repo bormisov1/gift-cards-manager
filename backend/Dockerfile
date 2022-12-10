@@ -1,8 +1,8 @@
 FROM node:18.12-alpine
 
-RUN mkdir -p /usr/src/app
+RUN mkdir -p /backend
 
-WORKDIR /usr/src/app
+WORKDIR /backend
 
 COPY . .
 
@@ -10,4 +10,4 @@ RUN npm install --force
 
 EXPOSE 3000
 
-CMD ["npm", "run", "start"]
+CMD ["npm", "run", "start:dev"]
