@@ -27,12 +27,12 @@ export class TokenInterceptor implements NestInterceptor {
         response.setHeader('Authorization', `Bearer ${token}`);
         response.setHeader('Content-Type', 'application/x-www-form-urlencoded');
 
-        // response.cookie('token', token, {
-        //   httpOnly: true,
-        //   signed: true,
-        //   sameSite: 'strict',
-        //   secure: process.env.NODE_ENV === 'production',
-        // });
+        /* response.cookie('token', token, {
+          httpOnly: true,
+          signed: true,
+          sameSite: 'strict',
+          secure: false,
+        }); */
 
         return user;
       }),
