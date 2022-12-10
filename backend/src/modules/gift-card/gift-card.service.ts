@@ -15,7 +15,7 @@ import {
   ICreateDto,
   //ICreateDto,
 } from './gift-card.interface';
-import { FRONTEND_URL } from '../../../config';
+import { config } from '../../config';
 
 @Injectable()
 export class GiftCardService implements IGiftCardStorage {
@@ -29,9 +29,8 @@ export class GiftCardService implements IGiftCardStorage {
   }
 
   async create(
-    username: string,
-    dto: ICreateDto | Record<string, never>,
-  ): Promise<IEmptyGiftCard> {
+    username: string, dto: ICreateDto
+  ):Promise<IEmptyGiftCard> {
     const creationDate: Date = new Date();
     const nextYear = new Date(
       creationDate.setFullYear(creationDate.getFullYear() + 1),
@@ -46,7 +45,7 @@ export class GiftCardService implements IGiftCardStorage {
       expirationDate: new Date(nextYear.setDate(nextYear.getDate() + 1)),
     };
     const pathToFile = path.join(process.cwd(), 'codes', giftCard.id + '.png');
-    const link = FRONTEND_URL + '/' + giftCard.id;
+    const link = config.FRONTEND_URL + '/' + giftCard.id;
     return new Promise((resolve) => {
       QRCode.toFile(pathToFile, link, () => {
         this.giftCardModel.create(giftCard);

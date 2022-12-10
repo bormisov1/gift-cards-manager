@@ -15,10 +15,10 @@ export interface IEmptyGiftCard {
   creatorUsername: string;
   creationDate: Date;
   expirationDate: Date;
-  spent: 0;
+  spent?: number;
   active: boolean;
-  description?: object;
-  sum?: number;
+  description: object;
+  sum: number;
 }
 
 export interface IQuery {
@@ -29,6 +29,7 @@ export interface IQuery {
 export interface ICreateDto {
   description: object;
   sum: number;
+  spent?: number;
   //spent: 0;
 }
 
