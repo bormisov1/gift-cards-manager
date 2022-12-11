@@ -9,17 +9,15 @@ import { User, UserSchema } from './schemas/auth.schema';
 //import { SessionSerializer } from './session.serializer';
 //import { JwtStrategy } from './strategies/jwt.strategy';
 import { LocalStrategy } from './strategies/local.strategy';
-import { config } from '../../config';
-import { JwtStrategy } from './strategies/jwt.strategy';
 
 @Module({
   imports: [
     MongooseModule.forFeature([{ name: User.name, schema: UserSchema }]),
     PassportModule.register({ defaultStrategy: 'jwt' }),
     JwtModule.register({
-      secret: 'a',
+      secret: 'SECRET',
       signOptions: {
-        expiresIn: '1d',
+        //expiresIn: '',
         algorithm: 'HS384',
       },
       verifyOptions: {
@@ -28,7 +26,7 @@ import { JwtStrategy } from './strategies/jwt.strategy';
     }),
   ],
   controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [AuthService, LocalStrategy],
   //LocalStrategy, JwtStrategy, SessionSerializer],
 })
 export class AuthModule {}

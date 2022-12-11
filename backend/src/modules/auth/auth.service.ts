@@ -29,11 +29,11 @@ export class AuthService implements IAuthService {
   async validateUser(
     username: string,
     plainPassword: string,
-  ): Promise<IUser | boolean> {
+  ): Promise<boolean> {
     const user = await this.userModel.findOne({ username }).exec();
     if (!user) return false;
     const passwordFits = await bcrypt.compare(plainPassword, user.passHash);
-    return passwordFits && {username: user.username, password: plainPassword};
+    return user && passwordFits;
   }
 
   signToken(user: IUser): string {
