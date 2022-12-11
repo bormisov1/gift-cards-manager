@@ -43,10 +43,10 @@ export class GiftCardController {
 
   @Post('create')
   @UseGuards(JwtAuthGuard)
-  async create(@Request() req): Promise<string> {
+  async create(@Request() req, @Body() dto: CreateDto): Promise<string> {
     const giftCardDocument: IEmptyGiftCard = await this.giftCardService.create(
       req.user.username,
-      {},
+      dto,
     );
     return giftCardDocument.id;
   }
