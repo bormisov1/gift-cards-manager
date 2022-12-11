@@ -10,7 +10,7 @@ import GiftCardEditing from '@/views/GiftCardEditing'
 
 const ifNotAuthenticated = (to, from, next) => {
   if (!localStorage.token) return next()
-  next(`/`)
+  next('/cards-list')
 }
 
 const ifAuthenticated = (to, from, next) => {
@@ -27,14 +27,18 @@ const routes = [
     beforeEnter: ifNotAuthenticated
   },
   {
-    path: '/form-gift-card/:giftCardId',
+    path: '/form-gift-card',
     name: 'formGiftCard',
     component: GiftCardEditing,
+    beforeEnter: ifNotAuthenticated,
+    props: true
   },
   {
-    path: '/:giftCardId',
+    path: '/gift-card/:giftCardId',
     name: 'giftCard',
     component: GiftCard,
+    beforeEnter: ifNotAuthenticated,
+    props: true
   },
   {
     path: '/',
@@ -48,11 +52,16 @@ const routes = [
         component: CardsList,
         props: true
       }, {
-        path: 'create-gift-card/:giftCardId',
+        path: 'create-gift-card',
         name: 'createGiftCard',
         component: GiftCardEditing,
         props: true
-      },
+      }, {
+        path: 'gift-card-editing/:giftCardId',
+        name: 'editGiftCard',
+        component: GiftCardEditing,
+        props: true
+      }
       // {
       //   path: '*',
       //   name: 'notFoundPage',
@@ -68,6 +77,7 @@ const routes = [
 ]
 
 const router = new VueRouter({
+  mode: 'history',
   routes
 })
 
