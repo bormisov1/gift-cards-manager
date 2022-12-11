@@ -26,6 +26,12 @@ export class CreateDto implements ICreateDto {
   @IsObject()
   @IsNotEmpty()
   description: IDescription;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  @IsNotEmpty()
+  spent?: number;
 }
 
 export class QueryDto implements IQuery {
