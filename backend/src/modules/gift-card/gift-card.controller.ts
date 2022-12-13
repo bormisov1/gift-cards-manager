@@ -10,7 +10,7 @@ import {
 } from '@nestjs/common';
 
 import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
-import { QueryDto, UpdateDto, CreateDto } from './dto/gift-card.dto';
+import { QueryDto, UpdateDto, CreateDto, ActivateDto } from './dto/gift-card.dto';
 import { IGiftCard, IEmptyGiftCard, IGiftCardInfo } from './gift-card.interface';
 import { GiftCardService } from './gift-card.service';
 
@@ -58,6 +58,13 @@ export class GiftCardController {
       //TODO return error
     }
     return giftCardDocument.id;
+  }
+
+  @Post('activate')
+  @UseGuards(JwtAuthGuard)
+  async activate(@Request() req, @Body() dto: ActivateDto) {
+    this.giftCardService.activate(dto);
+    return {ok: true}
   }
 
   @Post('update')

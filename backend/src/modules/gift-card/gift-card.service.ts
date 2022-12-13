@@ -16,6 +16,8 @@ import {
   ICreateDto,
   IGiftCardInfo,
   IDescription,
+  IActivateGiftCard,
+  IActivateDto
 } from './gift-card.interface';
 import { config } from '../../config';
 
@@ -101,5 +103,40 @@ export class GiftCardService implements IGiftCardStorage {
       {spent: (oldValue.spent || 0) + giftCard.spent},
     );
   }
+
+  async activate(giftCard: IActivateDto) {
+    const oldValue: IGiftCard = await this.giftCardModel
+      .findOne({id: giftCard.id})
+      .select('-_id -v').exec();
+    const update: IActivateGiftCard = {
+      spent: giftCard.spent ? (oldValue.spent || 0) + giftCard.spent : 0,
+      active: giftCard.active !== null ? giftCard.active : oldValue.active
+    }
+    if (giftCard.active) update.sum = giftCard.sum
+    if (!oldValue.activationDate && giftCard.active) {
+      const today: Date = new Date();
+      const nextYear = new Date(
+        new Date().setFullYear(today.getFullYear() + 1),
+      );
+      update.activationDate = new Date()
+      update.expirationDate = new Date(nextYear.setDate(nextYear.getDate() + 1))
+    }
+    const updateDoc = (resolve) => {
+      this.giftCardModel.findOneAndUpdate(
+        { id: giftCard.id }, update, () => resolve('')
+      );
+    }
+    await new Promise(resolve => {
+      if (giftCard.active) {
+        const pathToFile = path.join(process.cwd(), 'codes', giftCard.id + '.png');
+        const link = config.FRONTEND_URL + '/' + giftCard.id;
+        QRCode.toFile(pathToFile, link, {width: 300, margin: 2}, (err) => {
+          if (err) {
+            //TODO error
+          };
+          updateDoc(resolve)
+        })
+      } else updateDoc(resolve)
+    })
   }
 }

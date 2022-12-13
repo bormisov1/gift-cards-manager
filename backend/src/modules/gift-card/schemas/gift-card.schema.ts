@@ -28,6 +28,9 @@ export class GiftCard {
 
   @Prop()
   expirationDate: Date;
+
+  @Prop()
+  activationDate: Date;
 }
 
 export type GiftCardDocument = GiftCard & Document;
