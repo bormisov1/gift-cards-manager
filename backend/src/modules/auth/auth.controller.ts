@@ -21,7 +21,6 @@ export class AuthController {
   @Post('register')
   @HttpCode(HttpStatus.OK)
   register(@Body() dto: UserDto) {
-    console.log(1);
     const result = this.authService.register(dto);
     if (!result) {
       //TODO throw err
