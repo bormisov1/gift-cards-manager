@@ -11,6 +11,7 @@ services:
       - '3000:3000'
     volumes:
       - ./backend/src:/backend/src
+      - ./backend/codes:/backend/codes
     depends_on:
       - mongo-db
     environment:
