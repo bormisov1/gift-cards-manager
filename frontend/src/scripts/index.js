@@ -1,6 +1,24 @@
 const fetch = require('node-fetch')
 const baseUrl = 'http://localhost:3000'
 
+export function formatDate(date) {
+  date = new Date(date)
+  const yyyy = date.getFullYear();
+  let mm = date.getMonth() + 1;
+  let dd = date.getDate();
+  if (dd < 10) dd = '0' + dd;
+  if (mm < 10) mm = '0' + mm;
+  return dd + '.' + mm + '.' + yyyy;
+}
+
+export function blobToBase64(blob) {
+  return new Promise((resolve, _) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
 export async function fetchRequest(url, method, data, headers) {
   url = baseUrl + url
   let params = {method, headers: headers || {}}
@@ -23,15 +41,19 @@ export async function fetchRequest(url, method, data, headers) {
       }
       if (url.includes('/file-handler')) {
         body = await response.blob()
-      } else body = await response.text()
+        console.log(URL.createObjectURL(body))
+        resolve(body)
+      } else {
+        body = await response.text()
+        try {
+          body = JSON.parse(body)
+        } catch {}
+      }
       headers = response.headers && Object.fromEntries(response.headers.entries())
     } catch (err) {
       console.log("Request error", url, err)
       resolve({err})
     }
-    try {
-      body = JSON.parse(body)
-    } catch {}
     if (headers && headers.authorization) localStorage.setItem('token', headers.authorization)
     resolve({body, headers})
   })
