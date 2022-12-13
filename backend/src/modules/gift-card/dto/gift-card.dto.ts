@@ -6,6 +6,7 @@ import {
   IsOptional,
   IsObject,
   IsBoolean,
+  IsString,
   //  ValidateNested,
 } from 'class-validator';
 //import { plainToClass, Transform, Type } from 'class-transformer';
@@ -50,7 +51,7 @@ export class QueryDto implements IQuery {
 
 export class UpdateDto implements IUpdateDto {
   @ApiProperty({ type: String })
-  @IsNumber()
+  @IsString()
   @IsNotEmpty()
   id: string;
 

@@ -11,8 +11,8 @@ export class GiftCard {
   @Prop()
   creatorUsername: string;
 
-  @Prop({ type: mongoose.Schema.Types.ObjectId, ref: 'IDescription' })
-  description: IDescription;
+  @Prop({type: Object})
+  description: object;
 
   @Prop()
   sum: number;
