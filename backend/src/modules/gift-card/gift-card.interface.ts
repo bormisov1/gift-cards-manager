@@ -6,7 +6,14 @@ export interface IGiftCard {
   sum: number;
   spent: number;
   creationDate: Date;
-  expirationDate: Date;
+export interface IGiftCardInfo {
+  id: string;
+  creatorUsername: string;
+  receiverFullName: string;
+  sum: number;
+  spent?: number;
+  active: boolean
+}
   active: boolean;
 }
 
@@ -45,7 +52,8 @@ export interface IGiftCardStorage {
     username: string,
     dto: ICreateDto | Record<string, never>,
   ): Promise<IEmptyGiftCard>;
-  read(query?: IQuery): Promise<IGiftCard[]>;
+  read(id: string): Promise<IGiftCard>;
+  getList(query?: IQuery): Promise<IGiftCardInfo[]>
   update(giftCard: IUpdateDto): void;
 }
 
@@ -56,11 +64,11 @@ export interface IGiftCardStorage {
 export interface IDescription {
   client: {
     fullName: string;
-    phone?: object;
+    phone?: string;
     email?: string;
   };
   receiver: {
     fullName: string;
-    phone?: object;
+    phone?: string;
   };
 }
