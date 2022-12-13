@@ -15,6 +15,7 @@ import {
   IDescription,
   IQuery,
   IUpdateDto,
+  IActivateDto,
 } from '../gift-card.interface';
 
 export class CreateDto implements ICreateDto {
@@ -71,4 +72,28 @@ export class UpdateDto implements IUpdateDto {
   @IsObject()
   @IsNotEmpty()
   description?: IDescription;
+}
+
+export class ActivateDto implements IActivateDto {
+  @ApiProperty({ type: String })
+  @IsString()
+  @IsNotEmpty()
+  id: string;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  @IsNotEmpty()
+  spent?: number;
+
+  @ApiProperty({ type: Number })
+  @IsOptional()
+  @IsNumber()
+  @IsNotEmpty()
+  sum?: number;
+
+  @ApiProperty({ type: Object })
+  @IsBoolean()
+  @IsNotEmpty()
+  active: boolean;
 }

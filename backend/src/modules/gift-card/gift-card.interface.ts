@@ -6,6 +6,11 @@ export interface IGiftCard {
   sum: number;
   spent: number;
   creationDate: Date;
+  expirationDate?: Date;
+  active: boolean;
+  activationDate?: Date;
+}
+
 export interface IGiftCardInfo {
   id: string;
   creatorUsername: string;
@@ -14,14 +19,21 @@ export interface IGiftCardInfo {
   spent?: number;
   active: boolean
 }
+
+export interface IActivateGiftCard {
+  expirationDate?: Date;
+  activationDate?: Date;
+  spent?: number;
   active: boolean;
+  sum?: number;
 }
 
 export interface IEmptyGiftCard {
   id: string;
   creatorUsername: string;
+  activationDate?: Date;
   creationDate: Date;
-  expirationDate: Date;
+  expirationDate?: Date;
   spent?: number;
   active: boolean;
   description: object;
@@ -43,8 +55,14 @@ export interface ICreateDto {
 export interface IUpdateDto {
   id: string;
   spent: number;
-  sum?: number;
   description?: object;
+}
+
+export interface IActivateDto {
+  id: string;
+  spent?: number;
+  sum?: number;
+  active: boolean;
 }
 
 export interface IGiftCardStorage {
