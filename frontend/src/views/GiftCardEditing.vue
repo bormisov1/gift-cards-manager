@@ -65,6 +65,7 @@
     </v-dialog>
     <v-card outlined class="gift-card-data diod-container back-btn-container">
       <v-btn
+        v-if="'unauthGiftCardCreation' != currentEditingType"
         class="back-btn"
         icon
         @click="$router.go(-1)">
