@@ -15,7 +15,7 @@ const ifNotAuthenticated = (to, from, next) => {
 
 const ifAuthenticated = (to, from, next) => {
   if (localStorage.token) return next()
-  next(`/auth`)
+  next(`/form-gift-card`)
 }
 
 Vue.use(VueRouter)
