@@ -19,6 +19,7 @@ services:
       - DATABASE_NAME=gift-cards-manager
       - WAIT_HOSTS=mongo-db:27017
       - PORT=3000
+      - FRONTEND_URL=$FRONTEND_URL
 #      - NODE_ENV=staging
 
   frontend-dev:
@@ -26,6 +27,8 @@ services:
     build:
       context: frontend
       dockerfile: ./Dockerfile-dev
+    environment:
+      - VUE_APP_SERVER_URL=$SERVER_URL
     depends_on:
       - backend
     ports:
