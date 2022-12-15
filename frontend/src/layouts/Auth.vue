@@ -12,7 +12,7 @@
         v-model="password">
       </v-text-field>
       <v-btn @click="request(false)" class="login-btn">Войти</v-btn>
-      <v-btn @click="request(true)">Регистрация</v-btn>
+      <!-- <v-btn @click="request(true)">Регистрация</v-btn> -->
     </v-card>
   </div>
 </template>
