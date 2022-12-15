@@ -4,13 +4,6 @@ import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt } from 'passport-jwt';
 import { config } from '../../../config';
 
-interface JwtPayload {
-  username: string;
-  password: string;
-  iat: number;
-  exp: number;
-}
-
 @Injectable()
 export class JwtStrategy extends PassportStrategy(Strategy) {
   constructor() {
@@ -18,7 +11,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
       // algorithms: ['HS384'],
-      secretOrKey: 'a',
+      secretOrKey: config.SECRET_KEY,
       passReqToCallback: true,
     }/* , function (req, jwtPaylad, cakkback) {
       console.log(jwtPaylad)
