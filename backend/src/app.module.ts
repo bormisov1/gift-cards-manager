@@ -18,10 +18,10 @@ import { WinstonModule } from 'nest-winston';
 //import { HttpConsoleLoggerInterceptor } from './shared/interceptors';
 
 const NODE_ENV = {
-  'DEVELOPMENT': 'development',
-  'STAGING': 'staging',
-  'PRODUCTION': 'production',
-}
+  DEVELOPMENT: 'development',
+  STAGING: 'staging',
+  PRODUCTION: 'production',
+};
 
 let winstonTransports = [];
 
@@ -43,12 +43,14 @@ if (process.env.ENV === NODE_ENV.PRODUCTION) {
     WinstonModule.forRoot({
       transports: winstonTransports,
     }),
-    MongooseModule.forRoot(`mongodb://${process.env['DATABASE_HOST']}/${process.env['DATABASE_NAME']}`),
+    MongooseModule.forRoot(
+      `mongodb://${process.env['DATABASE_HOST']}/${process.env['DATABASE_NAME']}`,
+    ),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, '../..', 'tracker'),
       serveStaticOptions: {
-        index: 'tracker.js'
-      }
+        index: 'tracker.js',
+      },
     }),
     AuthModule,
     GiftCardsModule,

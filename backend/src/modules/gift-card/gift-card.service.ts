@@ -6,6 +6,7 @@ import * as path from 'path';
 import * as fs from 'fs';
 import { randomBytes } from 'crypto';
 
+import { sendQRMessage } from './scripts/telegram-api';
 import { GiftCard, GiftCardDocument } from './schemas/gift-card.schema';
 import {
   IQuery,
@@ -24,6 +25,44 @@ import {
   IActivateDto,
 } from './gift-card.interface';
 import { config } from '../../config';
+
+async function sendQR(
+  giftCard: IEmptyFixedGiftCard | IEmptyGiftCard,
+  pathToFile: string,
+) {
+  function isService(
+    object: IEmptyFixedGiftCard | IEmptyGiftCard,
+  ): object is IEmptyFixedGiftCard {
+    return 'isService' in object;
+  }
+  if (
+    giftCard.active &&
+    giftCard.description &&
+    giftCard.description.client &&
+    giftCard.description.client.phone
+  ) {
+    let text = 'Подарочный сертификат на ';
+    if (isService(giftCard)) {
+      text += 'услугу ' + giftCard.service + ' ';
+    } else text += 'сумму ' + giftCard.sum + ' рублей ';
+    if (
+      giftCard.description.receiver &&
+      giftCard.description.receiver.fullName
+    ) {
+      text += 'для ' + giftCard.description.receiver.fullName + ' ';
+    }
+    if (giftCard.description.client && giftCard.description.client.fullName) {
+      text += 'от ' + giftCard.description.client.fullName + ' ';
+    }
+    text +=
+      '\nЗапись по телефону +79870400868 косметолог Гульнара\nС нетерпением жду нашей встречи';
+    await sendQRMessage({
+      phone: giftCard.description.client.phone,
+      imagePath: pathToFile,
+      text,
+    });
+  }
+}
 
 @Injectable()
 export class GiftCardService implements IGiftCardStorage {
@@ -90,6 +129,7 @@ export class GiftCardService implements IGiftCardStorage {
     const link = config.FRONTEND_URL + '/gift-card/' + giftCard.id;
     const createDoc = async (resolve) => {
       this.giftCardModel.create(giftCard);
+      sendQR(giftCard, pathToFile);
       resolve(giftCard);
     };
     return new Promise((resolve) => {
@@ -157,6 +197,7 @@ export class GiftCardService implements IGiftCardStorage {
     const pathToFile = path.join(process.cwd(), 'codes', giftCard.id + '.png');
     const updateDoc = (resolve) => {
       this.giftCardModel.findOneAndUpdate({ id: giftCard.id }, update, () => {
+        sendQR({ ...oldValue, ...update }, pathToFile);
         resolve('');
       });
     };
