@@ -11,11 +11,17 @@ export class GiftCard {
   @Prop()
   creatorUsername: string;
 
-  @Prop({type: Object})
-  description: object;
+  @Prop({ type: Object })
+  description: IDescription;
 
   @Prop()
   sum: number;
+
+  @Prop()
+  service: string;
+
+  @Prop()
+  isService: boolean;
 
   @Prop()
   spent: number;

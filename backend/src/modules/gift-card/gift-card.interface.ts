@@ -1,9 +1,23 @@
 export interface IGiftCard {
   id: string;
   creatorUsername: string;
-  // not sure which fields should be in core logic
-  description: object;
+  description: IDescription;
   sum: number;
+  service?: number;
+  spent: number;
+  creationDate: Date;
+  expirationDate?: Date;
+  active: boolean;
+  activationDate?: Date;
+}
+
+export interface IFixedGiftCard {
+  id: string;
+  creatorUsername: string;
+  description: IDescription;
+  service: string;
+  isService: boolean;
+  sum?: number;
   spent: number;
   creationDate: Date;
   expirationDate?: Date;
@@ -16,8 +30,20 @@ export interface IGiftCardInfo {
   creatorUsername: string;
   receiverFullName: string;
   sum: number;
+  service?: string;
   spent?: number;
-  active: boolean
+  active: boolean;
+}
+
+export interface IFixedGiftCardInfo {
+  id: string;
+  creatorUsername: string;
+  receiverFullName: string;
+  sum?: number;
+  service: string;
+  isService: boolean;
+  spent?: number;
+  active: boolean;
 }
 
 export interface IActivateGiftCard {
@@ -36,8 +62,22 @@ export interface IEmptyGiftCard {
   expirationDate?: Date;
   spent?: number;
   active: boolean;
-  description: object;
+  description: IDescription;
   sum: number;
+  service?: string;
+}
+export interface IEmptyFixedGiftCard {
+  id: string;
+  creatorUsername: string;
+  activationDate?: Date;
+  creationDate: Date;
+  expirationDate?: Date;
+  spent?: number;
+  active: boolean;
+  description: IDescription;
+  sum?: number;
+  service: string;
+  isService: boolean;
 }
 
 export interface IQuery {
@@ -46,8 +86,18 @@ export interface IQuery {
 }
 
 export interface ICreateDto {
-  description: object;
+  description: IDescription;
   sum: number;
+  service?: string;
+  spent?: number;
+  //spent: 0;
+}
+
+export interface IFixedCreateDto {
+  description: IDescription;
+  service: string;
+  isService: boolean;
+  sum?: number;
   spent?: number;
   //spent: 0;
 }
@@ -55,23 +105,25 @@ export interface ICreateDto {
 export interface IUpdateDto {
   id: string;
   spent: number;
-  description?: object;
+  description?: IDescription;
 }
 
 export interface IActivateDto {
   id: string;
   spent?: number;
   sum?: number;
+  service?: string;
+  isService?: boolean;
   active: boolean;
 }
 
 export interface IGiftCardStorage {
   create(
     username: string,
-    dto: ICreateDto | Record<string, never>,
-  ): Promise<IEmptyGiftCard>;
-  read(id: string): Promise<IGiftCard>;
-  getList(query?: IQuery): Promise<IGiftCardInfo[]>
+    dto: ICreateDto | IFixedCreateDto | Record<string, never>,
+  ): Promise<IEmptyGiftCard | IEmptyFixedGiftCard>;
+  read(id: string): Promise<IGiftCard | IFixedGiftCard>;
+  getList(query?: IQuery): Promise<(IGiftCardInfo | IFixedGiftCardInfo)[]>;
   update(giftCard: IUpdateDto): void;
 }
 
