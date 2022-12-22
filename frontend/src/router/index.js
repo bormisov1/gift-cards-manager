@@ -5,6 +5,7 @@ import Auth from '@/layouts/Auth'
 import Main from '@/layouts/Main'
 import CardsList from '@/views/CardsList'
 import NotFoundPage from '@/layouts/NotFoundPage'
+import Success from '@/layouts/Success'
 import GiftCard from '@/layouts/GiftCard'
 import GiftCardEditing from '@/views/GiftCardEditing'
 
@@ -69,6 +70,12 @@ const routes = [
       // },
     ]
   },
+  {
+    path: '/success',
+    name: 'success',
+    component: Success,
+    props: true
+  }
   // {
   //   path: '/not-found',
   //   name: 'notFoundPage',
