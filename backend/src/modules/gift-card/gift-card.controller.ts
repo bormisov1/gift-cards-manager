@@ -39,14 +39,6 @@ export class GiftCardController {
     return this.giftCardService.read(id);
   }
 
-  @Post('unauth-create')
-  async unauthCreate(@Body() dto: CreateDto) {
-    await this.giftCardService.create('unauth', dto);
-    return {ok: true}
-    //send telegram message about gift card creation
-    //return giftCardDocument.id;
-  }
-
   @Post('create')
   @UseGuards(JwtAuthGuard)
   async create(@Request() req, @Body() dto: CreateDto): Promise<string> {
