@@ -6,11 +6,11 @@ import * as cookieParser from 'cookie-parser';
 import * as passport from 'passport';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule); 
+  const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
   app.use(cookieParser());
 
-/*   app.use(
+  /*   app.use(
     session({
       secret: 'a',
       resave: false,
@@ -40,4 +40,28 @@ async function bootstrap() {
   //})
   await app.listen(3000);
 }
+const apiId = 27660986;
+const apiHash = '6a124c2b7a6c0ba5cae7edd0868b404f';
+import { TelegramClient } from 'telegram';
+import { StringSession } from 'telegram/sessions';
+import input from 'input';
+import { Api } from 'telegram/tl';
+const stringSession = new StringSession('');
+(async () => {
+  console.log('Loading interactive example...');
+  const client = new TelegramClient(stringSession, apiId, apiHash, {
+    connectionRetries: 5,
+  });
+  await client.start({
+    phoneNumber: async () => await input.text('Please enter your number: '),
+    password: async () => await input.text('Please enter your password: '),
+    phoneCode: async () =>
+      await input.text('Please enter the code you received: '),
+    onError: (err) => console.log(err),
+  });
+  console.log(client.session.save());
+  console.log('You should now be connected.');
+  client.session.save(); // Save this string to avoid logging in again
+  await client.sendMessage('me', { message: 'Hello!' });
+})();
 bootstrap();
