@@ -10,6 +10,10 @@
   color: #2c3e50;
 }
 
+html {
+  overflow-y: auto !important;
+}
+
 * {
   font-family: Inter;
 }
