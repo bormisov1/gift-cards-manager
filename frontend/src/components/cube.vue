@@ -74,20 +74,24 @@ export default {
 	transform: rotateX( -4deg ) rotateY(282deg );
 	margin: 150px auto;
 
-	-webkit-animation: giro 2s linear;
-	animation: giro 2s linear;
+	-webkit-animation: giro 1s linear;
+	animation: giro 1s linear;
   margin-top: 2px;
 }
 
 @-webkit-keyframes giro {
   0% { transform: scale(0)  rotateY(282deg); }
-  50% { transform: scale(0.25) rotateY(657deg); }
-  100% { transform: scale(0.5)  rotateY(1002deg); }
+  25% { transform: scale(0.5) rotateY(462deg); }
+  50% { transform: scale(1) rotateY(642deg); }
+  75% { transform: scale(0.75) rotateY(822deg); }
+  100% { transform: scale(1)  rotateY(1002deg); }
 }
 
 @keyframes giro {
   0% { transform: scale(0)  rotateY(282deg); }
-  50% { transform: scale(0.5) rotateY(657deg); }
+  25% { transform: scale(0.5) rotateY(462deg); }
+  50% { transform: scale(1) rotateY(642deg); }
+  75% { transform: scale(0.75) rotateY(822deg); }
   100% { transform: scale(1)  rotateY(1002deg); }
 }
 
