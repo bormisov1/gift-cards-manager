@@ -4,12 +4,14 @@
       <v-text-field
         :label="'Логин'"
         outlined
-        v-model="username">
+        v-model="username"
+        style="min-width: 300px">
       </v-text-field>
       <v-text-field
         :label="'Пароль'"
         outlined
-        v-model="password">
+        v-model="password"
+        style="min-width: 300px">
       </v-text-field>
       <v-btn @click="request(false)" class="login-btn">Войти</v-btn>
       <!-- <v-btn @click="request(true)">Регистрация</v-btn> -->
@@ -36,6 +38,14 @@ export default {
 }
 </script>
 <style>
+@media (max-width: 800px) {
+  .auth-card {
+    top: 30%;
+    left: 5% !important;
+    position: absolute !important;
+    width: 90% !important;
+  }
+}
 .auth-card {
   width: 50%;
   position: absolute !important;
