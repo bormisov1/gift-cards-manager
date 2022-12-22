@@ -43,7 +43,10 @@
             {{giftCard.receiverFullName}}
           </v-card-title>
           <v-card-subtitle>
-            <span v-if="giftCard.spent" class="describtion">
+            <span v-if="giftCard.isService" class="describtion">
+              На услугу {{giftCard.service}}
+            </span>
+            <span v-else-if="giftCard.spent" class="describtion">
               Потрачено {{giftCard.spent}} из {{giftCard.sum}}
             </span>
             <span v-else class="describtion">Сумма {{giftCard.sum}}</span>
