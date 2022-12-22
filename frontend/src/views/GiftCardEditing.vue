@@ -105,12 +105,21 @@
               :defaultCountry="'RU'"
               :label="field.label"
               :disabled="field.disabled"
+              :mode="'international'"
               :inputOptions="{placeholder: field.label, label: field.label}"
               style="margin-bottom: 15px; width: 100%"
               v-model="form[field.name]">
               <template slot="arrow-icon"> <span class="vti__dropdown-arrow">&nbsp;▼</span> </template>
               <template slot="label"><div>{{field.label}}</div></template>
             </vue-tel-input>
+            <v-checkbox
+              v-else-if="field.component == 'checkbox' && !field.hide"
+              :disabled="field.disabled"
+              :label="field.label"
+              :true-value="field.name == 'spent' ? 1 : true"
+              :false-value="field.name == 'spent' ? 0 : false"
+              v-model="form[field.name]">
+            </v-checkbox>
             <v-text-field
               v-else-if="!['dates', 'spentPrev'].includes(field.name) && !field.hide"
               :disabled="field.disabled"
@@ -128,7 +137,7 @@
               :disabled="formDisabled"
               class="submit-btn">Сохранить</v-btn>
               <v-btn
-                v-if="!form.active && !form.expired && currentEditingType == 'giftCardEditing'"
+                v-if="activeBtnAvailable"
                 @click="isConfirmActivationDialog = true"
                 class="submit-btn" outlined style="margin-left: 30px">
                 Активировать
@@ -168,6 +177,14 @@ export default {
     formDisabled() {
       
     },
+    activeBtnAvailable() {
+      const usedService = this.form.isService && this.form.spent
+      const usedSum = this.form.spent >= this.form.sum
+      return !this.form.active
+        && !usedService && !usedSum
+        && !this.form.expired
+        && this.currentEditingType == 'giftCardEditing'
+    },
     currentEditingType() {
       const pathToEditingType = {
         'createGiftCard': 'userGiftCardCreation',
@@ -177,21 +194,31 @@ export default {
       return pathToEditingType[this.$route.name]
     },
     fields() {
+      const usedService = this.form.isService && this.form.spent
+      const usedSum = this.form.spent >= this.form.sum
       const fields = [
-        {name: 'receiverFullName', label: 'ФИО получателя',
+        {name: 'receiverFullName', label: 'ФИО клиента',
           disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'receiverPhone', label: 'Телефон получателя',
+        {name: 'receiverPhone', label: 'Телефон клиента',
           disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'clientFullName', label: 'ФИО клиента',
+        {name: 'clientFullName', label: 'ФИО покупателя',
           disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'clientPhone', label: 'Телефон клиента',
+        {name: 'clientPhone', label: 'Телефон покупателя',
           disabled: this.currentEditingType == 'giftCardEditing'},
+        {name: 'isService', label: 'Конкретная процедура', component: 'checkbox',
+          disabled: usedService,
+          hide: this.currentEditingType == 'unauthGiftCardCreation' || this.form.active},
         {name: 'sum', label: 'Сумма подарочного сертификата',
-          min: 1000, max: 10000,
-          disabled: this.currentEditingType == 'giftCardEditing' && this.form.active},
+          min: 1000, max: 10000, hide: this.form.isService,
+          disabled: this.currentEditingType == 'giftCardEditing' && (this.form.active || usedSum)},
+        {name: 'service', label: 'Подарочный сертификат на услугу',
+          disabled: this.currentEditingType == 'giftCardEditing' && (this.form.active || this.form.spent),
+          hide: this.currentEditingType == 'unauthGiftCardCreation' || !this.form.isService},
         {name: 'spentPrev'},
+        {name: 'spent', label: 'Использован', component: 'checkbox',
+          hide: this.currentEditingType == 'unauthGiftCardCreation' || !this.form.isService || !this.form.active},
         {name: 'spentNow', label: 'Потрачено',
-          hide: this.currentEditingType == 'unauthGiftCardCreation'},
+          hide: this.currentEditingType == 'unauthGiftCardCreation' || this.form.isService || usedSum},
         {name: 'dates'},
       ]
       return fields
@@ -199,9 +226,7 @@ export default {
   },
   methods: {
     async qrImage(id) {
-      console.log(this.form.id, id)
       if ((!this.form.id || !this.form.active) && !id) return ''
-      console.log(this.form.id, id)
       const blob = await fetchRequest('/file-handler/' + (this.form.id || id), 'GET')
       this.qrImageSrc = await blobToBase64(blob)
       //const urlCreator = window.URL || window.webkitURL
@@ -233,8 +258,12 @@ export default {
       this.qrImage()
     },
     getString(fieldName) {
-      if (fieldName == 'spentPrev' && this.form.spent) {
-        return 'Потрачено ' + this.form.spent + ', осталось ' + (this.form.sum - this.form.spent)
+      if (fieldName == 'spentPrev') {
+        if (this.form.isService && this.form.spent) {
+          return 'Использован'
+        } else if (this.form.spent) {
+          return 'Потрачено ' + this.form.spent + ', осталось ' + (this.form.sum - this.form.spent) 
+        }
       } else if (fieldName == 'dates' && this.currentEditingType == 'giftCardEditing') {
         if (!this.form.activationDate) return ''
         return formatDate(this.form.activationDate) + ' - ' + formatDate(this.form.expirationDate)
@@ -254,10 +283,10 @@ export default {
           phone: this.form.receiverPhone,
         },
       }
-      dataToSend.sum = +dataToSend.sum
-      dataToSend.spent = +dataToSend.spentNow
+      if (this.form.sum) dataToSend.sum = +dataToSend.sum
+      if (!this.form.isService) dataToSend.spent = +dataToSend.spentNow
       const editTypeToUrl = {
-        unauthGiftCardCreation: 'unauth-create',
+        unauthGiftCardCreation: 'create',
         userGiftCardCreation: 'create',
         giftCardEditing: 'update'
       }
@@ -269,7 +298,7 @@ export default {
           this.showQRDialog = true
           return
         }
-        if ('unauthGiftCardCreation' == this.currentEditingType) this.$router.push({name: 'auth'})
+        if ('unauthGiftCardCreation' == this.currentEditingType) this.$router.push({name: 'success'})
         else this.$router.push({name: 'cardsList'})
       } else {
         //TODO inform user about error
@@ -282,11 +311,13 @@ export default {
       this.$set(this.form, fieldName, phoneObj)
     }, */
     async activate() {
-      const result = await fetchRequest(`/gift-cards/activate`,'POST', {
+      const dataToSend = {
         id: this.form.id,
         active: true,
-        sum: +this.form.sum
-      })
+      }
+      if (this.form.sum) dataToSend.sum = +this.form.sum
+      if (this.form.service) dataToSend.service = +this.form.service
+      const result = await fetchRequest(`/gift-cards/activate`,'POST', dataToSend)
       if (result && result.body) {
         this.isConfirmActivationDialog = false
         await this.qrImage(this.form.id)
