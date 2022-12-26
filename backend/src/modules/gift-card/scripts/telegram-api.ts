@@ -42,6 +42,7 @@ export async function sendQRMessage({
     await client.sendFile(contactInfo.id, {
       file: imagePath,
       caption: text,
+      parseMode: 'html',
     });
   }
 }
