@@ -38,7 +38,6 @@ const routes = [
     path: '/gift-card/:giftCardId',
     name: 'giftCard',
     component: GiftCard,
-    beforeEnter: ifNotAuthenticated,
     props: true
   },
   {

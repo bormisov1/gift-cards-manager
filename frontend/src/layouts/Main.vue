@@ -8,6 +8,9 @@
 
 export default {
   name: 'MainView',
-  components: {}
+  components: {},
+  created() {
+    if (this.$route.name == 'home') this.$router.push({name: 'cardsList'})
+  },
 }
 </script>
