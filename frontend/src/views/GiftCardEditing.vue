@@ -101,29 +101,42 @@
               <template v-slot:arrow-icon> <v-icon>arrow_drop_down</v-icon> </template>
             </custom-vue-tel-input> -->
             <vue-tel-input
-              v-if="field.name.includes('Phone') && !field.hide"
+              v-if="field.name.includes('Phone') && !hideField(field.name)"
               :defaultCountry="'RU'"
               :label="field.label"
-              :disabled="field.disabled"
+              :disabled="fieldDisabled(field.name)"
               :mode="'international'"
-              :inputOptions="{placeholder: field.label, label: field.label}"
+              :validCharactersOnly="true"
+              :inputOptions="{placeholder: field.label, label: field.label, showDialCode: true}"
               style="margin-bottom: 15px; width: 100%"
               v-model="form[field.name]">
               <template slot="arrow-icon"> <span class="vti__dropdown-arrow">&nbsp;▼</span> </template>
               <template slot="label"><div>{{field.label}}</div></template>
             </vue-tel-input>
             <v-checkbox
-              v-else-if="field.component == 'checkbox' && !field.hide"
-              :disabled="field.disabled"
+              v-else-if="field.component == 'checkbox' && !hideField(field.name)"
+              :disabled="fieldDisabled(field.name)"
               :label="field.label"
               :true-value="field.name == 'spent' ? 1 : true"
               :false-value="field.name == 'spent' ? 0 : false"
               v-model="form[field.name]">
             </v-checkbox>
             <v-text-field
-              v-else-if="!['dates', 'spentPrev'].includes(field.name) && !field.hide"
-              :disabled="field.disabled"
+              v-else-if="!['dates', 'spentPrev'].includes(field.name)
+                && !hideField(field.name) && field.type == 'number'"
+              :disabled="fieldDisabled(field.name)"
               :label="field.label"
+              :class="errorFields.includes(field.name) ? 'error-field' : ''"
+              :error="errorFields.includes(field.name)"
+              v-model="form[field.name]"
+              v-mask="'######'">
+            </v-text-field>
+            <v-text-field
+              v-else-if="!['dates', 'spentPrev'].includes(field.name) && !hideField(field.name)"
+              :disabled="fieldDisabled(field.name)"
+              :label="field.label"
+              :class="errorFields.includes(field.name) ? 'error-field' : ''"
+              :error="errorFields.includes(field.name)"
               v-model="form[field.name]">
             </v-text-field>
             <span
@@ -134,10 +147,11 @@
             <v-btn
               @click="save"
               outlined
-              :disabled="formDisabled"
+              :disabled="actionsDisabled"
               class="submit-btn">Сохранить</v-btn>
               <v-btn
                 v-if="activeBtnAvailable"
+                :disabled="actionsDisabled"
                 @click="isConfirmActivationDialog = true"
                 class="submit-btn" outlined style="margin-left: 30px">
                 Активировать
@@ -150,16 +164,20 @@
 </template>
 <script>
 import { VueTelInput } from 'vue-tel-input';
+import {mask} from 'vue-the-mask'
+import _ from 'lodash'
 
 import {fetchRequest, formatDate, blobToBase64} from '@/scripts/index'
 
 export default {
   name: 'GiftCardEditing',
+  directives: {mask},
   data: () => ({
     form: {},
     showQRDialog: false,
     isConfirmActivationDialog: false,
     qrImageSrc: '',
+    errorFields: []
   }),
   async created() {
     if (this.$route.params.giftCardId) {
@@ -171,11 +189,30 @@ export default {
       if (value === false && oldValue === true) {
         this.$router.push({name: 'cardsList'})
       }
+    },
+    'form.spentNow'(value) {
+      const totalSpent = +value + (this.form.spent ? +this.form.spent : 0)
+      if (totalSpent > this.form.sum) {
+        this.errorFields.push('spentNow')
+      } else {
+        this.errorFields.splice(this.errorFields.indexOf('spentNow'), 1)
+      }
     }
   },
   computed: {
-    formDisabled() {
-      
+    requiredFieldNames() {
+      let fields = _.cloneDeep(this.fields) || []
+      fields = fields.filter(f => {
+        return !this.hideField(f.name)
+          && !this.fieldDisabled(f.name)
+          && !['isService', 'spentNow', 'spent', 'dates', 'spentPrev'].includes(f.name)
+      })
+      return fields.map(f => f.name)
+    },
+    actionsDisabled() {
+      return !!this.errorFields.length || this.requiredFieldNames.some(fName => {
+        return !this.form[fName]
+      })
     },
     activeBtnAvailable() {
       const usedService = this.form.isService && this.form.spent
@@ -194,37 +231,48 @@ export default {
       return pathToEditingType[this.$route.name]
     },
     fields() {
-      const usedService = this.form.isService && this.form.spent
-      const usedSum = this.form.spent >= this.form.sum
       const fields = [
-        {name: 'receiverFullName', label: 'ФИО клиента',
-          disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'receiverPhone', label: 'Телефон клиента',
-          disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'clientFullName', label: 'ФИО покупателя',
-          disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'clientPhone', label: 'Телефон покупателя',
-          disabled: this.currentEditingType == 'giftCardEditing'},
-        {name: 'isService', label: 'Конкретная процедура', component: 'checkbox',
-          disabled: usedService,
-          hide: this.currentEditingType == 'unauthGiftCardCreation' || this.form.active},
-        {name: 'sum', label: 'Сумма подарочного сертификата',
-          min: 1000, max: 10000, hide: this.form.isService,
-          disabled: this.currentEditingType == 'giftCardEditing' && (this.form.active || usedSum)},
-        {name: 'service', label: 'Подарочный сертификат на услугу',
-          disabled: this.currentEditingType == 'giftCardEditing' && (this.form.active || this.form.spent),
-          hide: this.currentEditingType == 'unauthGiftCardCreation' || !this.form.isService},
+        {name: 'receiverFullName', label: 'ФИО клиента'},
+        {name: 'receiverPhone', label: 'Телефон клиента'},
+        {name: 'clientFullName', label: 'ФИО покупателя'},
+        {name: 'clientPhone', label: 'Телефон покупателя',},
+        {name: 'isService', label: 'Конкретная процедура', component: 'checkbox'},
+        {name: 'sum', label: 'Сумма подарочного сертификата', type: 'number'},
+        {name: 'service', label: 'Подарочный сертификат на услугу'},
         {name: 'spentPrev'},
-        {name: 'spent', label: 'Использован', component: 'checkbox',
-          hide: this.currentEditingType == 'unauthGiftCardCreation' || !this.form.isService || !this.form.active},
-        {name: 'spentNow', label: 'Потрачено',
-          hide: this.currentEditingType == 'unauthGiftCardCreation' || this.form.isService || usedSum},
+        {name: 'spent', label: 'Использован', component: 'checkbox'},
+        {name: 'spentNow', label: 'Потрачено', type: 'number'},
         {name: 'dates'},
       ]
       return fields
     }
   },
   methods: {
+    hideField(fieldName) {
+      const usedSum = this.form.spent >= this.form.sum
+      const unauthCreationHiddenFields = this.currentEditingType == 'unauthGiftCardCreation'
+        && ['isService', 'service', 'spent', 'spentNow'].includes(fieldName)
+      const serviceExtraFields = ['spentNow', 'sum'].includes(fieldName) && this.form.isService
+      const sumExtraFields = ['spent', 'service'].includes(fieldName) && !this.form.isService
+      return unauthCreationHiddenFields
+        || serviceExtraFields
+        || sumExtraFields
+        || 'spent' == fieldName && !this.form.active
+        || 'spentNow' == fieldName && usedSum
+    },
+    fieldDisabled(fieldName) {
+      if (fieldName.includes('receiver') || fieldName.includes('client')) {
+        return this.currentEditingType == 'giftCardEditing'
+      } else if (fieldName == 'isService') {
+        return this.form.isService && (this.form.spent || this.form.active)
+      } else if (fieldName == 'sum') {
+        const usedSum = this.form.spent >= this.form.sum
+        return this.currentEditingType == 'giftCardEditing' && (this.form.active || usedSum)
+      } else if (fieldName == 'service') {
+        return this.currentEditingType == 'giftCardEditing' && (this.form.active || this.form.spent)
+      }
+      return false
+    },
     async qrImage(id) {
       if ((!this.form.id || !this.form.active) && !id) return ''
       const blob = await fetchRequest('/file-handler/' + (this.form.id || id), 'GET')
@@ -271,6 +319,7 @@ export default {
       return ''
     },
     async save() {
+      if (this.actionsDisabled) return
       const dataToSend = this.form
       dataToSend.description = {
         client: {
@@ -298,8 +347,9 @@ export default {
           this.showQRDialog = true
           return
         }
-        if ('unauthGiftCardCreation' == this.currentEditingType) this.$router.push({name: 'success'})
-        else this.$router.push({name: 'cardsList'})
+        if ('unauthGiftCardCreation' == this.currentEditingType) {
+          this.$router.push({name: 'success'})
+        } else this.$router.push({name: 'cardsList'})
       } else {
         //TODO inform user about error
       }
@@ -311,6 +361,7 @@ export default {
       this.$set(this.form, fieldName, phoneObj)
     }, */
     async activate() {
+      if (this.actionsDisabled) return
       const dataToSend = {
         id: this.form.id,
         active: true,
@@ -339,6 +390,7 @@ export default {
     left: 0;
     max-width: 800px;
     width: 100%;
+    padding-top: 20px;
   }
 }
 @media (min-width: 800px) {
@@ -349,6 +401,14 @@ export default {
     max-width: 800px;
     width: 100%;
   }
+}
+
+.error-field {
+  color: red !important
+}
+
+.error-field .v-label {
+  color: red !important
 }
 
 .vue-tel-input:focus-within {
