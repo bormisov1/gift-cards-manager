@@ -14,7 +14,8 @@
             <v-col>
               <v-row v-for="(field, fieldIndex) in fields"
                 :key="fieldIndex">
-                <div class="preview-text">{{field.describtion}}{{giftCard[field.name]}}</div>
+                <div v-if="giftCard[field.name]"
+                  class="preview-text">{{field.describtion}}{{giftCard[field.name]}}</div>
               </v-row>
             </v-col>
           </v-card-text>
@@ -44,6 +45,7 @@ export default {
       {name: 'to', describtion: 'Кому: '},
       {name: 'from', describtion: 'От кого: '},
       {name: 'sum', describtion: 'На сумму '},
+      {name: 'service', describtion: 'На '},
       {name: 'expirationDate', describtion: 'Успейте до '}
     ]
   }),
@@ -53,11 +55,11 @@ export default {
       this.$router.push({name: 'notFoundPage'})
       return
     }
-    console.log(body)
     this.giftCard = {
       to: body.description.receiver.fullName,
       from: body.description.client.fullName,
-      sum: body.sum + ' рублей',
+      sum: body.sum ? body.sum + ' рублей' : null,
+      service: body.service,
       expirationDate: formatDate(body.expirationDate)
     }
     this.qrImage()
