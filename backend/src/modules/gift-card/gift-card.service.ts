@@ -29,6 +29,7 @@ import { config } from '../../config';
 async function sendQR(
   giftCard: IEmptyFixedGiftCard | IEmptyGiftCard,
   pathToFile: string,
+  link: string,
 ) {
   function isService(
     object: IEmptyFixedGiftCard | IEmptyGiftCard,
@@ -41,7 +42,7 @@ async function sendQR(
     giftCard.description.client &&
     giftCard.description.client.phone
   ) {
-    let text = 'Подарочный сертификат на ';
+    let text = `<a href="${link}">Подарочный сертификат</a> на `;
     if (isService(giftCard)) {
       text += 'услугу ' + giftCard.service + ' ';
     } else text += 'сумму ' + giftCard.sum + ' рублей ';
@@ -54,8 +55,7 @@ async function sendQR(
     if (giftCard.description.client && giftCard.description.client.fullName) {
       text += 'от ' + giftCard.description.client.fullName + ' ';
     }
-    text +=
-      '\nЗапись по телефону +79870400868 косметолог Гульнара\nС нетерпением жду нашей встречи';
+    text += `\nЗапись по телефону +79870400868 косметолог Гульнара\nС нетерпением жду нашей встречи`;
     await sendQRMessage({
       phone: giftCard.description.client.phone,
       imagePath: pathToFile,
@@ -129,7 +129,7 @@ export class GiftCardService implements IGiftCardStorage {
     const link = config.FRONTEND_URL + '/gift-card/' + giftCard.id;
     const createDoc = async (resolve) => {
       this.giftCardModel.create(giftCard);
-      sendQR(giftCard, pathToFile);
+      sendQR(giftCard, pathToFile, link);
       resolve(giftCard);
     };
     return new Promise((resolve) => {
@@ -163,6 +163,7 @@ export class GiftCardService implements IGiftCardStorage {
       .select('-_id -v')
       .exec();
     let active = oldValue.active;
+    if (!active) return;
     const spent = (oldValue.spent || 0) + giftCard.spent;
     if ((oldValue.isService && giftCard.spent) || spent >= +oldValue.sum) {
       active = false;
@@ -179,6 +180,7 @@ export class GiftCardService implements IGiftCardStorage {
       .select('-_id -v')
       .lean()
       .exec();
+    if (oldValue.active) return;
     const update: IActivateGiftCard = {
       spent: giftCard.spent ? (oldValue.spent || 0) + giftCard.spent : 0,
       active: giftCard.active !== null ? giftCard.active : oldValue.active,
@@ -195,15 +197,15 @@ export class GiftCardService implements IGiftCardStorage {
       );
     }
     const pathToFile = path.join(process.cwd(), 'codes', giftCard.id + '.png');
+    const link = config.FRONTEND_URL + '/' + giftCard.id;
     const updateDoc = (resolve) => {
       this.giftCardModel.findOneAndUpdate({ id: giftCard.id }, update, () => {
-        sendQR({ ...oldValue, ...update }, pathToFile);
+        sendQR({ ...oldValue, ...update }, pathToFile, link);
         resolve('');
       });
     };
     await new Promise((resolve) => {
       if (giftCard.active) {
-        const link = config.FRONTEND_URL + '/' + giftCard.id;
         QRCode.toFile(pathToFile, link, { width: 300, margin: 2 }, (err) => {
           if (err) {
             //TODO error
